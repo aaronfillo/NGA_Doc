@@ -1,0 +1,223 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>mechanism.f90 &mdash; NGA 2 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="NGA 2 documentation" href="../index.html" />
+    <link rel="prev" title="finitechem.f90" href="finitechem.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="mechanism-f90">
+<h1>mechanism.f90<a class="headerlink" href="#mechanism-f90" title="Permalink to this headline">¶</a></h1>
+<p>Chemical mechanism used in NGA.</p>
+<p><strong>Module</strong> <a class="reference internal" href="#f/mechanism" title="f/mechanism: This module contains the subroutines used in computing thermodynamic properties from the chemical mechanism, including enthalpy, specific heat, molar masses, and reaction rate coefficients."><code class="xref f f-mod docutils literal"><span class="pre">mechanism</span></code></a></p>
+<span class="target" id="f/mechanism"></span><dl class="subroutine">
+<dt id="f/mechanism/COMPTHERMODATA">
+<em class="property">subroutine  </em><code class="descclassname">mechanism/</code><code class="descname">COMPTHERMODATA</code><span class="sig-paren">(</span><em>H</em>, <em>CP</em>, <em>T</em><span class="sig-paren">)</span><a class="headerlink" href="#f/mechanism/COMPTHERMODATA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the thermodynamic data (enthalpy and specific heat) for the species at a given temperature.  The returned values for H and CP are fit as functions of T.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>H</strong> :: Array of species enthalpy.</li>
+<li><strong>CP</strong> :: Array of species specific heats.</li>
+<li><strong>T</strong> :: Temperature of mixture.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Called from:</th><td class="field-body"><p class="first last"><a class="reference internal" href="finitechem.html#f/finitechem/finitechem_diffusivity" title="f/finitechem/finitechem_diffusivity"><code class="xref f f-subr docutils literal"><span class="pre">finitechem_diffusivity()</span></code></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="subroutine">
+<dt id="f/mechanism/GETNSPECIES">
+<em class="property">subroutine  </em><code class="descclassname">mechanism/</code><code class="descname">GETNSPECIES</code><span class="sig-paren">(</span><em>NSPECIES</em><span class="sig-paren">)</span><a class="headerlink" href="#f/mechanism/GETNSPECIES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of species in the mechansim.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>NSPECIES</strong> :: Number of species in the mechanism.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="subroutine">
+<dt id="f/mechanism/GETSPECIESNAMES">
+<em class="property">subroutine  </em><code class="descclassname">mechanism/</code><code class="descname">GETSPECIESNAMES</code><span class="sig-paren">(</span><em>NAMES</em><span class="sig-paren">)</span><a class="headerlink" href="#f/mechanism/GETSPECIESNAMES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the names of the species in an array of strings.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>NAMES</strong> :: Array of species names.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="subroutine">
+<dt id="f/mechanism/GETMOLARMASS">
+<em class="property">subroutine  </em><code class="descclassname">mechanism/</code><code class="descname">GETMOLARMASS</code><span class="sig-paren">(</span><em>MM</em><span class="sig-paren">)</span><a class="headerlink" href="#f/mechanism/GETMOLARMASS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the molar mass of each species, in kg/mol.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>MM</strong> :: Array of molar masses.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="subroutine">
+<dt id="f/mechanism/GETMUCOEFF">
+<em class="property">subroutine  </em><code class="descclassname">mechanism/</code><code class="descname">GETMUCOEFF</code><span class="sig-paren">(</span><em>MUCOEFF</em><span class="sig-paren">)</span><a class="headerlink" href="#f/mechanism/GETMUCOEFF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the species muCoeffs in kg/m.s, which is used in calculations for computing the species viscosities.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>MUCOEFF</strong> :: Array of species muCoeffs.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="subroutine">
+<dt id="f/mechanism/GETKOVEREPS">
+<em class="property">subroutine  </em><code class="descclassname">mechanism/</code><code class="descname">GETKOVEREPS</code><span class="sig-paren">(</span><em>KOVEREPS</em><span class="sig-paren">)</span><a class="headerlink" href="#f/mechanism/GETKOVEREPS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the species <span class="math">\(k/\epsilon\)</span>, which is used in fits of the collision integrals.  Here, <span class="math">\(k\)</span> is Boltzmann&#8217;s constant and <span class="math">\(\epsilon\)</span> is the potential well depth.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>KOVEREPS</strong> :: Array of <span class="math">\(k/\epsilon\)</span> values</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="subroutine">
+<dt id="f/mechanism/GETNREACTIONS">
+<em class="property">subroutine  </em><code class="descclassname">mechanism/</code><code class="descname">GETNREACTIONS</code><span class="sig-paren">(</span><em>NREACTIONS</em><span class="sig-paren">)</span><a class="headerlink" href="#f/mechanism/GETNREACTIONS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of reactions in the mechanism.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>NREACTIONS</strong> :: Number of reactions in the mechanism.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="subroutine">
+<dt id="f/mechanism/GETLINDRATECOEFF">
+<em class="property">subroutine  </em><code class="descclassname">mechanism/</code><code class="descname">GETLINDRATECOEFF</code><span class="sig-paren">(</span><em>TEMP</em>, <em>PRESSURE</em>, <em>K0</em>, <em>KINF</em>, <em>FC</em>, <em>CONCIN</em><span class="sig-paren">)</span><a class="headerlink" href="#f/mechanism/GETLINDRATECOEFF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the rate constant for Lindemann reactions.  TEEMO.</p>
+</dd></dl>
+
+<dl class="subroutine">
+<dt id="f/mechanism/PRODRATES">
+<em class="property">subroutine  </em><code class="descclassname">mechanism/</code><code class="descname">PRODRATES</code><span class="sig-paren">(</span><em>C</em>, <em>TEMP</em>, <em>PRESSURE</em>, <em>CDOT_p</em>, <em>CDOT_n</em>, <em>W</em>, <em>K</em>, <em>M</em><span class="sig-paren">)</span><a class="headerlink" href="#f/mechanism/PRODRATES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the production rates of species in mole/m^3.s. TEEMO.</p>
+</dd></dl>
+
+<dl class="subroutine">
+<dt id="f/mechanism/COMPSTEADYSTATES">
+<em class="property">subroutine  </em><code class="descclassname">mechanism/</code><code class="descname">COMPSTEADYSTATES</code><span class="sig-paren">(</span><em>K</em>, <em>C</em>, <em>M</em>, <em>TEMP</em>, <em>PRESSURE</em><span class="sig-paren">)</span><a class="headerlink" href="#f/mechanism/COMPSTEADYSTATES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the steady state concentrations from the concentrations of computed species and rate coefficients.  Concentrations of computed species may not be altered.  TEEMO.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="finitechem.html" title="previous chapter">finitechem.f90</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/combustion/mechanism.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, G. Blanquart, O. Desjardins.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+      |
+      <a href="../_sources/combustion/mechanism.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

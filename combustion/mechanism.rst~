@@ -1,0 +1,69 @@
+#############
+mechanism.f90
+#############
+
+Chemical mechanism used in NGA.
+
+**Module** :f:mod:`mechanism`
+
+.. f:module:: mechanism
+
+    :synopsis: This module contains the subroutines used in computing thermodynamic properties from the chemical mechanism, including enthalpy, specific heat, molar masses, and reaction rate coefficients.
+
+.. f:subroutine:: COMPTHERMODATA(H, CP, T)
+
+    Computes the thermodynamic data (enthalpy and specific heat) for the species at a given temperature.  The returned values for H and CP are fit as functions of T.
+
+    :param H: Array of species enthalpy.
+    :param CP: Array of species specific heats.
+    :param T: Temperature of mixture.
+    
+    :from: :f:subr:`finitechem_diffusivity`
+    
+.. f:subroutine:: GETNSPECIES(NSPECIES)
+
+	Returns the number of species in the mechansim.
+	
+	:param NSPECIES: Number of species in the mechanism.
+	
+.. f:subroutine:: GETSPECIESNAMES(NAMES)
+	
+	Returns the names of the species in an array of strings.
+	
+	:param NAMES: Array of species names.
+	
+.. f:subroutine:: GETMOLARMASS(MM)
+	
+	Returns the molar mass of each species, in kg/mol.
+	
+	:param MM: Array of molar masses.
+	
+.. f:subroutine:: GETMUCOEFF(MUCOEFF)
+	
+	Returns the species muCoeffs in kg/m.s, which is used in calculations for computing the species viscosities.
+	
+	:param MUCOEFF: Array of species muCoeffs.
+	
+.. f:subroutine:: GETKOVEREPS(KOVEREPS)
+
+	Returns the species :math:`k/\epsilon`, which is used in fits of the collision integrals.  Here, :math:`k` is Boltzmann's constant and :math:`\epsilon` is the potential well depth.
+	
+	:param KOVEREPS: Array of :math:`k/\epsilon` values
+	
+.. f:subroutine:: GETNREACTIONS(NREACTIONS)
+	
+	Returns the number of reactions in the mechanism.
+	
+	:param NREACTIONS: Number of reactions in the mechanism.
+	
+.. f:subroutine:: GETLINDRATECOEFF(TEMP, PRESSURE, K0, KINF, FC, CONCIN)
+
+	Returns the rate constant for Lindemann reactions.  TEEMO.
+	
+.. f:subroutine:: PRODRATES(C, TEMP, PRESSURE, CDOT_p, CDOT_n, W, K, M)
+
+	Returns the production rates of species in mole/m^3.s. TEEMO.
+	
+.. f:subroutine:: COMPSTEADYSTATES(K, C, M, TEMP, PRESSURE)
+
+	Computes the steady state concentrations from the concentrations of computed species and rate coefficients.  Concentrations of computed species may not be altered.  TEEMO.

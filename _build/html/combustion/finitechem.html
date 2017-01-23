@@ -1,0 +1,659 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>finitechem.f90 &mdash; NGA 2 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="NGA 2 documentation" href="../index.html" />
+    <link rel="next" title="mechanism.f90" href="mechanism.html" />
+    <link rel="prev" title="Welcome to NGA’s documentation!" href="../index.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="finitechem-f90">
+<h1>finitechem.f90<a class="headerlink" href="#finitechem-f90" title="Permalink to this headline">¶</a></h1>
+<p>This module contains all subroutines necessary for the use of the finite-rate chemistry model, including the calculation of species and fluid properties, based on the provided chemical mechanism.</p>
+<p><strong>Module</strong> <a class="reference internal" href="#f/finitechem" title="f/finitechem: Finite-rate chemistry module."><code class="xref f f-mod docutils literal"><span class="pre">finitechem</span></code></a></p>
+<span class="target" id="f/finitechem"></span><dl class="variable">
+<dt id="f/finitechem/R_cst">
+<code class="descclassname">finitechem/</code><code class="descname">R_cst</code><a class="headerlink" href="#f/finitechem/R_cst" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">real</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Attrs:</th><td class="field-body">parameter = 8.314462</td>
+</tr>
+</tbody>
+</table>
+<p>Ideal gas constant, J/(mol.K).</p>
+</dd></dl>
+
+<dl class="variable">
+<dt id="f/finitechem/small_Y">
+<code class="descclassname">finitechem/</code><code class="descname">small_Y</code><a class="headerlink" href="#f/finitechem/small_Y" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">real</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Attrs:</th><td class="field-body">parameter = 1e-60</td>
+</tr>
+</tbody>
+</table>
+<p>Small value for the mass fraction.</p>
+</dd></dl>
+
+<dl class="variable">
+<dt id="f/finitechem/BDCOEFF">
+<code class="descclassname">finitechem/</code><code class="descname">BDCOEFF</code><a class="headerlink" href="#f/finitechem/BDCOEFF" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">real</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Attrs:</th><td class="field-body">parameter = 3.0_WP/16.0_WP*SQRT(2.0_WP/Pi*R_cst**3)</td>
+</tr>
+</tbody>
+</table>
+<p>Coefficient for the computation of bindary diffusion coefficients.</p>
+</dd></dl>
+
+<dl class="variable">
+<dt id="f/finitechem/CDCOEFF">
+<code class="descclassname">finitechem/</code><code class="descname">CDCOEFF</code><a class="headerlink" href="#f/finitechem/CDCOEFF" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">real</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Attrs:</th><td class="field-body">parameter = 0.5_WP*SQRT(5.0_WP/16.0_WP*SQRT(R_cst/Pi))</td>
+</tr>
+</tbody>
+</table>
+<p>Coefficient for the computation of reduced collision diameters.</p>
+</dd></dl>
+
+<dl class="variable">
+<dt id="f/finitechem/nReac">
+<code class="descclassname">finitechem/</code><code class="descname">nReac</code><a class="headerlink" href="#f/finitechem/nReac" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">integer</td>
+</tr>
+</tbody>
+</table>
+<p>Number of reactions in the chemical mechanism.</p>
+</dd></dl>
+
+<dl class="variable">
+<dt id="f/finitechem/nSpec">
+<code class="descclassname">finitechem/</code><code class="descname">nSpec</code><a class="headerlink" href="#f/finitechem/nSpec" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">integer</td>
+</tr>
+</tbody>
+</table>
+<p>Number of species in the chemical mechanism.</p>
+</dd></dl>
+
+<dl class="variable">
+<dt id="f/finitechem/W_sp">
+<code class="descclassname">finitechem/</code><code class="descname">W_sp</code><a class="headerlink" href="#f/finitechem/W_sp" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">real</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Attrs:</th><td class="field-body">pointer</td>
+</tr>
+</tbody>
+</table>
+<p>Array of species molecular weight, kg/mol.</p>
+</dd></dl>
+
+<dl class="variable">
+<dt id="f/finitechem/Cp_sp">
+<code class="descclassname">finitechem/</code><code class="descname">Cp_sp</code><a class="headerlink" href="#f/finitechem/Cp_sp" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">real</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Attrs:</th><td class="field-body">pointer</td>
+</tr>
+</tbody>
+</table>
+<p>Array of species heat capacities, J/mol.K.</p>
+</dd></dl>
+
+<dl class="variable">
+<dt id="f/finitechem/h_sp">
+<code class="descclassname">finitechem/</code><code class="descname">h_sp</code><a class="headerlink" href="#f/finitechem/h_sp" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">real</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Attrs:</th><td class="field-body">pointer</td>
+</tr>
+</tbody>
+</table>
+<p>Array of species enthalpies, J/mol.K.</p>
+</dd></dl>
+
+<dl class="variable">
+<dt id="f/finitechem/kOverEps">
+<code class="descclassname">finitechem/</code><code class="descname">kOverEps</code><a class="headerlink" href="#f/finitechem/kOverEps" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">real</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Attrs:</th><td class="field-body">pointer</td>
+</tr>
+</tbody>
+</table>
+<p>Array of species values of <span class="math">\(k/\epsilon\)</span>.</p>
+</dd></dl>
+
+<dl class="variable">
+<dt id="f/finitechem/muCoeff">
+<code class="descclassname">finitechem/</code><code class="descname">muCoeff</code><a class="headerlink" href="#f/finitechem/muCoeff" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">real</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Attrs:</th><td class="field-body">pointer</td>
+</tr>
+</tbody>
+</table>
+<p>Array of species values of muCoeff, used to calculate viscosity.</p>
+</dd></dl>
+
+<dl class="variable">
+<dt id="f/finitechem/Lewis">
+<code class="descclassname">finitechem/</code><code class="descname">Lewis</code><a class="headerlink" href="#f/finitechem/Lewis" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">real</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Attrs:</th><td class="field-body">pointer</td>
+</tr>
+</tbody>
+</table>
+<p>Array of species Lewis numbers.</p>
+</dd></dl>
+
+<dl class="variable">
+<dt id="f/finitechem/Tmin">
+<code class="descclassname">finitechem/</code><code class="descname">Tmin</code><a class="headerlink" href="#f/finitechem/Tmin" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">real</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Attrs:</th><td class="field-body">parameter = 295</td>
+</tr>
+</tbody>
+</table>
+<p>Clipping value for temperature, often used with max() to determine if a local value of temperature is less than Tmin.</p>
+</dd></dl>
+
+<dl class="variable">
+<dt id="f/finitechem/Tmax">
+<code class="descclassname">finitechem/</code><code class="descname">Tmax</code><a class="headerlink" href="#f/finitechem/Tmax" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">real</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Attrs:</th><td class="field-body">parameter = 3000</td>
+</tr>
+</tbody>
+</table>
+<p>Clipping value for temperature, often used with min() to determine if a local value of temperature is greater than Tmax.</p>
+</dd></dl>
+
+<dl class="variable">
+<dt id="f/finitechem/mixavg">
+<code class="descclassname">finitechem/</code><code class="descname">mixavg</code><a class="headerlink" href="#f/finitechem/mixavg" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">logical</td>
+</tr>
+</tbody>
+</table>
+<p>Logical variable, true if the transport model is either Mix Avg or Mix Avg Soret.</p>
+</dd></dl>
+
+<dl class="variable">
+<dt id="f/finitechem/soret">
+<code class="descclassname">finitechem/</code><code class="descname">soret</code><a class="headerlink" href="#f/finitechem/soret" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">logical</td>
+</tr>
+</tbody>
+</table>
+<p>Logical variable, true if the transport model is Mix Avg Soret.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="f/finitechem/finitechem_omegamu">
+<em class="property">function  </em><code class="descclassname">finitechem/</code><code class="descname">finitechem_omegamu</code><span class="sig-paren">(</span><em>temp</em>, <em>omegamu</em><span class="sig-paren">)</span><a class="headerlink" href="#f/finitechem/finitechem_omegamu" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the <span class="math">\(\Omega^{(2,2)}\)</span> collision integral (cf. FlameMaster/Tspecies.cpp).  Expects a reduced temperature, defined as <span class="math">\(Tk/\epsilon\)</span>.  The coefficients for the fit are not from a published source.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>temp</strong><em> [</em><em>real</em><em>,</em><em>in</em><em>]</em> :: Reduced temperature, <span class="math">\(Tk/\epsilon\)</span>.</li>
+<li><strong>omegamu</strong><em> [</em><em>real</em><em>,</em><em>out</em><em>]</em> :: <span class="math">\(\Omega^{(2,2)}\)</span> collision integral.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Called from:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#f/finitechem/finitechem_viscosity" title="f/finitechem/finitechem_viscosity"><code class="xref f f-subr docutils literal"><span class="pre">finitechem_viscosity()</span></code></a> <a class="reference internal" href="#f/finitechem/finitechem_diffusivity" title="f/finitechem/finitechem_diffusivity"><code class="xref f f-subr docutils literal"><span class="pre">finitechem_diffusivity()</span></code></a> <a class="reference internal" href="#f/finitechem/finitechem_source_zmix" title="f/finitechem/finitechem_source_zmix"><code class="xref f f-subr docutils literal"><span class="pre">finitechem_source_zmix()</span></code></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="f/finitechem/finitechem_omegaD">
+<em class="property">function  </em><code class="descclassname">finitechem/</code><code class="descname">finitechem_omegaD</code><span class="sig-paren">(</span><em>temp</em>, <em>omegaD</em><span class="sig-paren">)</span><a class="headerlink" href="#f/finitechem/finitechem_omegaD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the <span class="math">\(\Omega^{(1,1)}\)</span> collision integral (cf. FlameMaster/Tspecies.cpp).  Expects a reduced temperature, defined as <span class="math">\(Tk/\epsilon\)</span>.  The coefficients for the fit are not from a published source.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>temp</strong><em> [</em><em>real</em><em>,</em><em>in</em><em>]</em> :: Reduced temperature, <span class="math">\(Tk/\epsilon\)</span>.</li>
+<li><strong>omegaD</strong><em> [</em><em>real</em><em>,</em><em>out</em><em>]</em> :: <span class="math">\(\Omega^{(1,1)}\)</span> collision integral.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Called from:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#f/finitechem/finitechem_diffusivity" title="f/finitechem/finitechem_diffusivity"><code class="xref f f-subr docutils literal"><span class="pre">finitechem_diffusivity()</span></code></a> <a class="reference internal" href="#f/finitechem/finitechem_source_zmix" title="f/finitechem/finitechem_source_zmix"><code class="xref f f-subr docutils literal"><span class="pre">finitechem_source_zmix()</span></code></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="f/finitechem/finitechem_omegaC">
+<em class="property">function  </em><code class="descclassname">finitechem/</code><code class="descname">finitechem_omegaC</code><span class="sig-paren">(</span><em>temp</em>, <em>omegaC</em><span class="sig-paren">)</span><a class="headerlink" href="#f/finitechem/finitechem_omegaC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the ratio of <span class="math">\(\Omega^{(1,2)}\)</span> and <span class="math">\(\Omega^{(1,1)}\)</span> collision integrals (cf. FlameMaster/Tspecies.cpp).  This variable is used in the computation of mixture-averaged thermal diffusion coeficients.  Expects a reduced temperature, defined as <span class="math">\(Tk/\epsilon\)</span>.  The coefficients for the fit are not from a published source.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>temp</strong><em> [</em><em>real</em><em>,</em><em>in</em><em>]</em> :: Reduced temperature, <span class="math">\(Tk/\epsilon\)</span>.</li>
+<li><strong>omegaC</strong><em> [</em><em>real</em><em>,</em><em>out</em><em>]</em> :: <span class="math">\(\Omega^{(1,2)}/\Omega^{(1,1)}\)</span> ratio.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Called from:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#f/finitechem/finitechem_diffusivity" title="f/finitechem/finitechem_diffusivity"><code class="xref f f-subr docutils literal"><span class="pre">finitechem_diffusivity()</span></code></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="subroutine">
+<dt id="f/finitechem/finitechem_init">
+<em class="property">subroutine  </em><code class="descclassname">finitechem/</code><code class="descname">finitechem_init</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#f/finitechem/finitechem_init" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the finite-rate chemistry module.  This involves storing the number of species, their names, as well as coefficients necessary to compute thermodynamic and transport properties.  Allocates many variables and arrays related to finitechem, such as the species properties (W_sp, kOverEps, muCoeff, Lewis), temporary arrays (Cp_sp, h_sp, tmpS, tmpM, sol, dsol, dsol_n, bindiff) and arrays for the reactions (tmpR1, tmpR2),</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>names</strong> :: Array of string that stores the species names.</li>
+<li><strong>transport</strong> :: String that stores the chosen transport model.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Call to:</th><td class="field-body"><p class="first last"><a class="reference internal" href="mechanism.html#f/mechanism/GETNSPECIES" title="f/mechanism/GETNSPECIES"><code class="xref f f-subr docutils literal"><span class="pre">GETNSPECIES()</span></code></a> <a class="reference internal" href="mechanism.html#f/mechanism/GETSPECIESNAMES" title="f/mechanism/GETSPECIESNAMES"><code class="xref f f-subr docutils literal"><span class="pre">GETSPECIESNAMES()</span></code></a> <a class="reference internal" href="mechanism.html#f/mechanism/GETMOLARMASS" title="f/mechanism/GETMOLARMASS"><code class="xref f f-subr docutils literal"><span class="pre">GETMOLARMASS()</span></code></a> <a class="reference internal" href="mechanism.html#f/mechanism/GETMUCOEFF" title="f/mechanism/GETMUCOEFF"><code class="xref f f-subr docutils literal"><span class="pre">GETMUCOEFF()</span></code></a> <a class="reference internal" href="mechanism.html#f/mechanism/GETKOVEREPS" title="f/mechanism/GETKOVEREPS"><code class="xref f f-subr docutils literal"><span class="pre">GETKOVEREPS()</span></code></a> <code class="xref f f-subr docutils literal"><span class="pre">parser_read()</span></code> <a class="reference internal" href="mechanism.html#f/mechanism/GETNREACTIONS" title="f/mechanism/GETNREACTIONS"><code class="xref f f-subr docutils literal"><span class="pre">GETNREACTIONS()</span></code></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="subroutine">
+<dt id="f/finitechem/finitechem_density">
+<em class="property">subroutine  </em><code class="descclassname">finitechem/</code><code class="descname">finitechem_density</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#f/finitechem/finitechem_density" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the density of the mixture in the entire domain (including ghost cells) using the equation of state.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>temp</strong> :: Temperature, K.</li>
+<li><strong>Wmix</strong> :: Mixture molecular weight, kg/mol.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="subroutine">
+<dt id="f/finitechem/finitechem_molefraction">
+<em class="property">subroutine  </em><code class="descclassname">finitechem/</code><code class="descname">finitechem_molefraction</code><span class="sig-paren">(</span><em>isc</em>, <em>X_</em><span class="sig-paren">)</span><a class="headerlink" href="#f/finitechem/finitechem_molefraction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the species mole fraction using the mixture molecular weight, species molecular weight, and species mass fraction, everywhere in the domain (including ghost cells).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>X</strong> :: Array of species mole fractions.</li>
+<li><strong>W_mix</strong> :: Mixture molecular weight, kg/mol.</li>
+<li><strong>isc</strong> :: Index for the desired species.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="subroutine">
+<dt id="f/finitechem/finitechem_heatcapacity">
+<em class="property">subroutine  </em><code class="descclassname">finitechem/</code><code class="descname">finitechem_heatcapacity</code><span class="sig-paren">(</span><em>Cp_mix</em><span class="sig-paren">)</span><a class="headerlink" href="#f/finitechem/finitechem_heatcapacity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the mixture heat capacity using the temperature and species heat capacity.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>Cp_mix</strong> :: Array of mixture heat capacity, J/mol.K.</li>
+<li><strong>temp</strong> :: Temperature, K.</li>
+<li><strong>Cp_sp</strong> :: Species heat capacity, J/mol.K.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="subroutine">
+<dt id="f/finitechem/finitechem_viscosity">
+<em class="property">subroutine  </em><code class="descclassname">finitechem/</code><code class="descname">finitechem_viscosity</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#f/finitechem/finitechem_viscosity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the mixture viscosity after compting the species viscosity.  First, the species viscosities are computed using <a class="reference internal" href="#f/finitechem/muCoeff" title="f/finitechem/muCoeff"><code class="xref f f-var docutils literal"><span class="pre">muCoeff</span></code></a> and <a class="reference internal" href="#f/finitechem/finitechem_omegamu" title="f/finitechem/finitechem_omegamu"><code class="xref f f-subr docutils literal"><span class="pre">finitechem_omegamu()</span></code></a>.  Then, the mixture-averaged viscosity is computed using a Wilke&#8217;s-like formula (cf. App. B in Lapointe et al., Combust. Flame 162 (2015) 3341-3355.)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>temp</strong> :: Temperature, K.</li>
+<li><strong>W_mix</strong> :: Mixture molecular weight, kg/mol.</li>
+<li><strong>omegamu</strong> :: Value of the <span class="math">\(\Omega^{(2,2)}\)</span> collision integral.</li>
+<li><strong>tmpS</strong> :: Temporary array for species viscosities.</li>
+<li><strong>VISC</strong> :: Array of the mixture viscosity, <span class="math">\(\mu\)</span>, kg/(m.s).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Call to:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#f/finitechem/finitechem_omegamu" title="f/finitechem/finitechem_omegamu"><code class="xref f f-subr docutils literal"><span class="pre">finitechem_omegamu()</span></code></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="subroutine">
+<dt id="f/finitechem/finitechem_diffusivity">
+<em class="property">subroutine  </em><code class="descclassname">finitechem/</code><code class="descname">finitechem_diffusivity</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#f/finitechem/finitechem_diffusivity" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Computes the diffusivity coefficients, including thermal diffusion coefficients if the Mix Avg Soret transport model is selected.  First, the species conductivities, <span class="math">\(\lambda\)</span>, is computed from the Modified Eucken formula.  Then, the mixture-averaged conductivity is computed (cf. Eq. 12.119 in Kee, Coultrin, and Glarborg, Chemically Reacting Flows).  The diffusion coefficients are then pre-set to <span class="math">\(\lambda/Cp_mix\)</span>, which assumes constant, unity Lewis numbers.  Then, depending on the transport model, the diffusion coefficients are modified.</p>
+<p>If Lewis is chosen (or, equivalently, <a class="reference internal" href="#f/finitechem/mixavg" title="f/finitechem/mixavg"><code class="xref f f-var docutils literal"><span class="pre">mixavg</span></code></a> is false), then the diffusion coefficients are divided by the respective species Lewis number.  If Mix Avg or Mix Avg Soret is chosen for the transport model, then binary diffusion coefficients are computed for each species pair and a mixture-averaged diffusion coefficient is computed (cf. Eq. 5-45 in the Chemkin Theory Manual).  Finally, if Mix Avg Soret is the transport model, the thermal diffusion coefficients are computed using a method similar to Chapman and Cowling, 1970 (cf. TEEMO: Schlup paper on DIFFTHERM).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param isc:</th><td class="field-body">Index for species.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param jsc:</th><td class="field-body">Index for species.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param temp:</th><td class="field-body">Temperature, K.</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>W_mix</strong> :: Mixture molecular weight, kg/mol.</li>
+<li><strong>Cp_mix</strong> :: Mixture specific heat, J/mol.K.</li>
+<li><strong>omegamu</strong> :: <span class="math">\(\Omega^{(2,2)}\)</span> collision integral.</li>
+<li><strong>omegaD</strong> :: <span class="math">\(\Omega^{(1,1)}\)</span> collision integral.</li>
+<li><strong>Cstar</strong> :: Ratio of <span class="math">\(\Omega^{(1,2)}/\Omega^{(1,1)}\)</span> collision integrals.</li>
+<li><strong>beta</strong> :: Coefficient in Modified Eucken formulation for 1.2*omegamu/omegaD.</li>
+<li><strong>lambda</strong> :: Mixture conductivity.</li>
+<li><strong>mass</strong> :: Reduced molecular mass for a pair of species.</li>
+<li><strong>diam</strong> :: Reduced collision diameter for a pair of species.</li>
+<li><strong>corr</strong> :: Correction for the thermal diffusion coefficients so that the sum of all thermal diffusion coefficients is zero at each cell.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Call to:</th><td class="field-body"><p class="first last"><a class="reference internal" href="mechanism.html#f/mechanism/COMPTHERMODATA" title="f/mechanism/COMPTHERMODATA"><code class="xref f f-subr docutils literal"><span class="pre">COMPTHERMODATA()</span></code></a> <a class="reference internal" href="#f/finitechem/finitechem_omegamu" title="f/finitechem/finitechem_omegamu"><code class="xref f f-subr docutils literal"><span class="pre">finitechem_omegamu()</span></code></a> <a class="reference internal" href="#f/finitechem/finitechem_omegaD" title="f/finitechem/finitechem_omegaD"><code class="xref f f-subr docutils literal"><span class="pre">finitechem_omegaD()</span></code></a> <code class="xref f f-subr docutils literal"><span class="pre">boundary_update_border()</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="subroutine">
+<dt id="f/finitechem/finitechem_source_pressure">
+<em class="property">subroutine  </em><code class="descclassname">finitechem/</code><code class="descname">finitechem_source_pressure</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#f/finitechem/finitechem_source_pressure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the source terms for the temperature equation due to pressure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>src</strong> :: Array of source terms for each scalar.</li>
+<li><strong>Cp_mix</strong> :: Mixture heat capacity, J/mol.K.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Call to:</th><td class="field-body"><p class="first last"><a class="reference internal" href="mechanism.html#f/mechanism/COMPTHERMODATA" title="f/mechanism/COMPTHERMODATA"><code class="xref f f-subr docutils literal"><span class="pre">COMPTHERMODATA()</span></code></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="subroutine">
+<dt id="f/finitechem/finitechem_source_diffusion">
+<em class="property">subroutine  </em><code class="descclassname">finitechem/</code><code class="descname">finitechem_source_diffusion</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#f/finitechem/finitechem_source_diffusion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the source terms for the species and temperature equations due to diffusion effects.  First, the mixture heat capacity and molecular weight are computed.  Then, the source terms for the temperature and species equations are updated to account for diffusion effects.  For the temperature equation, this is simply <span class="math">\(\rho D/Cp_{mix} \nabla T \nabla Cp_{mix}\)</span>.  For the species equations, this is the divergence of the gradient terms in the species equations.  Additionally, the temperature equation gets an additional source term due to the enthalpy flux.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>Cp_mix</strong> :: Mixture heat capacity, J/mol.K.</li>
+<li><strong>W_mix</strong> :: Mixture molecular weight, kg/mol.</li>
+<li><strong>isc</strong> :: Index for species.</li>
+<li><strong>st</strong> :: Integer used for a stencil to satisfy the sum of mass fractions to be 1.</li>
+<li><strong>flux</strong> :: Temporary variable to help compute the fluxes for the temperature equation.</li>
+<li><strong>sum1</strong> :: Temporary variable to help compute the fluxes for the temperature equation.</li>
+<li><strong>sum2</strong> :: Temporary variable to help compute the fluxes for the temperature equation.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Call to:</th><td class="field-body"><p class="first last"><a class="reference internal" href="mechanism.html#f/mechanism/COMPTHERMODATA" title="f/mechanism/COMPTHERMODATA"><code class="xref f f-subr docutils literal"><span class="pre">COMPTHERMODATA()</span></code></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="subroutine">
+<dt id="f/finitechem/finitechem_source_soret">
+<em class="property">subroutine  </em><code class="descclassname">finitechem/</code><code class="descname">finitechem_source_soret</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#f/finitechem/finitechem_source_soret" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="subroutine">
+<dt id="f/finitechem/finitechem_source_tubular">
+<em class="property">subroutine  </em><code class="descclassname">finitechem/</code><code class="descname">finitechem_source_tubular</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#f/finitechem/finitechem_source_tubular" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="subroutine">
+<dt id="f/finitechem/finitechem_source_conduction">
+<em class="property">subroutine  </em><code class="descclassname">finitechem/</code><code class="descname">finitechem_source_conduction</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#f/finitechem/finitechem_source_conduction" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="subroutine">
+<dt id="f/finitechem/finitechem_source_chemistry">
+<em class="property">subroutine  </em><code class="descclassname">finitechem/</code><code class="descname">finitechem_source_chemistry</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#f/finitechem/finitechem_source_chemistry" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="subroutine">
+<dt id="f/finitechem/finitechem_source_implicit">
+<em class="property">subroutine  </em><code class="descclassname">finitechem/</code><code class="descname">finitechem_source_implicit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#f/finitechem/finitechem_source_implicit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="subroutine">
+<dt id="f/finitechem/finitechem_source_zmix">
+<em class="property">subroutine  </em><code class="descclassname">finitechem/</code><code class="descname">finitechem_source_zmix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#f/finitechem/finitechem_source_zmix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="subroutine">
+<dt id="f/finitechem/finitechem_ignite">
+<em class="property">subroutine  </em><code class="descclassname">finitechem/</code><code class="descname">finitechem_ignite</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#f/finitechem/finitechem_ignite" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="subroutine">
+<dt id="f/finitechem/finitechem_AT">
+<em class="property">subroutine  </em><code class="descclassname">finitechem/</code><code class="descname">finitechem_AT</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#f/finitechem/finitechem_AT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="subroutine">
+<dt id="f/finitechem/finitechem_monitor">
+<em class="property">subroutine  </em><code class="descclassname">finitechem/</code><code class="descname">finitechem_monitor</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#f/finitechem/finitechem_monitor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="subroutine">
+<dt id="f/finitechem/finitechem_check_bounds">
+<em class="property">subroutine  </em><code class="descclassname">finitechem/</code><code class="descname">finitechem_check_bounds</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#f/finitechem/finitechem_check_bounds" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="subroutine">
+<dt id="f/finitechem/interpol">
+<em class="property">subroutine  </em><code class="descclassname">finitechem/</code><code class="descname">interpol</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#f/finitechem/interpol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../index.html" title="previous chapter">Welcome to NGA&#8217;s documentation!</a></li>
+      <li>Next: <a href="mechanism.html" title="next chapter">mechanism.f90</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/combustion/finitechem.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, G. Blanquart, O. Desjardins.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+      |
+      <a href="../_sources/combustion/finitechem.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
